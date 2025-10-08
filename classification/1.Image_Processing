@@ -1,0 +1,250 @@
+//////////////////// ---------- (A) USER INPUT ---------- ////////////////////
+// (0) year+month for image classification
+var yearMonth = '202507'; // also used for matching with field data files
+
+// (1) define red, green, and blue bands
+var R = 'b6'; // assign RED band
+var G = 'b4'; // assign GREEN band
+var B = 'b2'; // assign BLUE band
+
+// (2) define physical attributes
+var physicalLayer = (yearMonth.slice(0, 4) < 2021) ? 'dw2012':'dw2022'; // depth, slope, and wave information [TIFF]
+var dwBands = ['b1', 'b2']; // define which bands to use: in the order [depth, waves, slope] -- depth MUST be used
+var dwBandNames = ['depth', 'waves']; // define band names for physical layer
+
+// (3) site name
+var siteName = 'Eastern Banks';
+
+// (4) setup asset directories and import assets
+var roiGeometry = "Eastern_Banks_Shpfl"; // ASSET for region of interest [SHAPEFILE]
+var assetFolder = "projects/ee-meml/assets/EasternBanks/TimeSeries/"
+
+var  assets = {
+  folder: assetFolder,
+  roi_clip: assetFolder+roiGeometry, // geometry for mapping region of interest
+  raw_image: assetFolder+"Raw_Imagery/", // import unprocessed satellite imagery
+  year: yearMonth,
+  sensor_scale: 3, // change based on sensor resolution (e.g., Planet imagery pixel size = 3 m)
+  visPamCC: {bands: [R,G,B], min:0, max:3000, gamma:1.5},
+  epsg: "EPSG:4326",
+  red_band:  R, 
+  green_band: G, 
+  blue_band: B, 
+  dw: assetFolder+physicalLayer // DSW = depth, slope, waves (modelled)
+};
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////// ---------- (B) BASIC DISPLAY ---------- ///////////////////
+// (1) define region of interest
+var extent = ee.FeatureCollection(assets.roi_clip); // import ROI shapefile
+var roi = extent.geometry();
+
+// (2) create extent mask as raster
+var mask = extent.map(function(feature){
+  return feature.set('n', 1);
+}).reduceToImage({
+    properties: ['n'],
+    reducer: ee.Reducer.first()
+});
+Map.centerObject(roi, 13.5);
+Map.addLayer(roi, {}, siteName+" ROI", false);
+
+// (3) import image and create bands
+var rawImage = ee.Image(assets.raw_image + assets.year).reproject(assets.epsg, null, 3).clip(roi); // site image
+print("Raw Image:", rawImage); // print image details
+Map.addLayer(rawImage, assets.visPamCC, siteName+" Image: "+assets.year, false); // display as true colour
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+///////////////// ---------- (C) IMAGE STATISTICS ---------- /////////////////
+// (1) clip raster using ROI extent
+var roi_clip = ee.Image().byte().paint(ee.Feature(extent.geometry(), {zone: 1}), "zone");
+
+// (2) add basic statistics
+// compute mean, median, standard deviation, minimum, and maximum for each band
+var statistics = rawImage.select([R,G,B])
+  .reduce(ee.Reducer.mean()
+  .combine({
+    reducer2: ee.Reducer.median(),
+    sharedInputs: true
+  })
+  .combine({
+    reducer2: ee.Reducer.stdDev(),
+    sharedInputs: true
+  // }).combine({
+  //   reducer2: ee.Reducer.min(),
+  //   sharedInputs: true
+  // }).combine({
+  //   reducer2: ee.Reducer.max(),
+  //   sharedInputs: true
+}));
+
+// (3) print the statistics
+print("Computed Statistics:", statistics);
+
+// (4) add the statistics as bands to the image
+var rawImageWithStats = rawImage.addBands(statistics)
+.addBands(rawImage.select(assets.red_band).divide(rawImage.select(assets.blue_band)).multiply(1000).int16().rename('rb'))
+              .addBands(rawImage.select(assets.green_band).divide(rawImage.select(assets.blue_band)).multiply(1000).int16().rename('gb'))
+              .addBands(rawImage.select(assets.red_band).divide(rawImage.select(assets.green_band)).multiply(1000).int16().rename('rg'));
+
+// (5) display the image with statistics
+Map.addLayer(rawImageWithStats.randomVisualizer(), {}, "Image with Statistics", false);
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+////////// ---------- (D) PRINCIPAL COMPONENTS ANALYSIS ---------- ///////////
+// (1) setup for PCA
+var PCAbands = [R, G, B]; // select percentile bands to perform PCA on
+var arrayImage = rawImage.select(PCAbands).toArray(0); // convert the image to a 2D array for matrix computations
+
+// (2) calculate image covariance
+var covar = arrayImage.reduceRegion({
+  reducer: ee.Reducer.covariance(),
+  geometry: roi,
+  scale: assets.sensor_scale,
+  maxPixels: 1e13
+});
+
+var covarArray = ee.Array(covar.get('array')); // extract the covariance matrix and store it as an array
+
+// (3) conduct PCA
+var eigens = covarArray.eigen(); // compute and extract the eigenvectors (output = vectors and values)
+var eigenVectors = eigens.slice(1, 1); // slice eigenvectors
+var principalComponents = ee.Image(eigenVectors).matrixMultiply(arrayImage.toArray(1)); // perform matrix multiplication
+var pcImage = principalComponents
+  .arrayProject([0]) // throw out unneeded dimension, [[]] -> []
+  .arrayFlatten([['pc1', 'pc2', 'pc3']]);// make the one band array image a multi-band image, []-> image
+//Map.addLayer(pcImage.select('pc1'), {}, 'pc1', false); // for displaying a single PC
+
+// (4) visualise PCA
+var visParamsPCA = {
+  bands: ['pc1','pc2','pc3'],
+  min: -1000,
+  max: 1000
+};
+Map.addLayer(pcImage, visParamsPCA, 'PC Image', false);
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////// ---------- (E) DEPTH MASKING ---------- ///////////////////
+/// (1) extract physical layer (depth, slope, waves)
+var DW = ee.Image(assets.dw).clip(roi).reproject(assets.epsg, null, 3);
+// select bands 'depth', 'waves', and 'slope' from the image
+function createDWImage() {
+  var numBands = dwBands.length;
+  var DWimage;
+  
+  if (numBands === 1) {
+    DWimage = DW.select(dwBands[0])
+                .rename(dwBandNames[0])
+                .int16();
+  } else if (numBands === 2) {
+    DWimage = DW.select(dwBands[0], dwBands[1])
+                .rename(dwBandNames[0], dwBandNames[1])
+                .int16();
+  } else if (numBands === 3) {
+    DWimage = DW.select(dwBands[0], dwBands[1], dwBands[2])
+                .rename(dwBandNames[0], dwBandNames[1], dwBandNames[2])
+                .int16();
+  }
+  
+  return DWimage;
+}
+var DWimage = createDWImage();
+
+// (2) create and visualise depth mask
+var depth_mask = DWimage.select('depth');//.reproject(ee.Projection(assets.epsg)).int16();
+print('Depth Image:', DWimage); // display the new masked image
+Map.addLayer(DWimage, {bands: dwBandNames}, 'Physical Layer', false); // visualise depth mask
+var depth_rpj = depth_mask.reproject(ee.Projection(assets.epsg)); // reproject to ensure CRS is correct
+
+// (3) GLCM (gray Level co-occurence matrix) texture bands
+var depth_glcm = depth_mask.int16().glcmTexture().select(['depth_ent']).focal_max(5).rename('depth_maxent').multiply(100).int16();
+var blue_glcm = rawImageWithStats.select(assets.blue_band).int16().glcmTexture().select([assets.blue_band+'_savg']).focal_median(5).int16();
+var green_glcm = rawImageWithStats.select(assets.green_band).int16().glcmTexture().select([assets.green_band+'_savg']).focal_median(5).int16();
+
+// (4) additional statistics
+var depth_var = depth_rpj.reduceNeighborhood({reducer: ee.Reducer.stdDev(), kernel: ee.Kernel.circle(5)}).rename('depth_stdDev').multiply(10).int16();
+var red_var = rawImageWithStats.select(assets.red_band).reduceNeighborhood({reducer: ee.Reducer.stdDev(), kernel: ee.Kernel.circle(5)}).rename('red_stdDev').multiply(10).int16();
+
+// (5) (optional) pre-segmentation image - optional step to verify that the previous steps have been applied
+// var pre_seg_image = rawImage.addBands(DWimage)
+//                           .addBands(depth_glcm)
+//                           .addBands(blue_glcm)
+//                           .addBands(green_glcm)
+//                           .addBands(red_var)
+//                           .addBands(depth_var)
+//                           .addBands(pcImage)
+//                           //.updateMask(depth_mask);
+// Map.addLayer(pre_seg_image, assets.visPamCC, "Pre Seg Image");
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////// ---------- (F) SEGMENTATION ---------- ///////////////////
+// (1) SNIC (simple non-iterative clustering) segmentation
+var run_snic = function(bands) {
+  return(
+  ee.Algorithms.Image.Segmentation.SNIC({
+  image: bands,
+  seeds: ee.Algorithms.Image.Segmentation.seedGrid(18, "hex"),
+  //size: 1000,
+  neighborhoodSize: 9,
+  compactness: 4,
+  connectivity: 8
+  })
+  );
+};
+
+// (2) apply segmentation
+var segmented_data_mean = run_snic(rawImageWithStats
+                            .addBands(DWimage)
+                            .addBands(depth_glcm)
+                            .addBands(blue_glcm)
+                            .addBands(green_glcm)
+                            .addBands(red_var)
+                            .addBands(depth_var)
+                            .addBands(pcImage)
+                            .updateMask(depth_mask)
+                          )
+                          .regexpRename('_mean', '');
+Map.addLayer(segmented_data_mean.reproject(ee.Projection('EPSG:4326').atScale(assets.sensor_scale)), assets.visPamCC, 'SNIC', false);
+
+// (3) (optional) remove 'Clusters' bands
+// segmented_data_mean = segmented_data_mean.select(ee.List.sequence(1, segmented_data_mean.bandNames().length().subtract(1)));
+// segmented_data_mean = segmented_data_mean.cast(ee.Dictionary.fromLists(segmented_data_mean.bandNames(), ee.List.repeat('int16', segmented_data_mean.bandNames().length())));
+// print(segmented_data_mean,  'Segmented 2');
+// Map.addLayer(segmented_data_mean.reproject(ee.Projection('EPSG:4326').atScale(assets.sensor_scale)), assets.visPamCC, 'SNIC Cluster 2', false);
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////// ---------- (G) EXPORT IMAGE ---------- ///////////////////
+// (1) export image to ASSET
+Export.image.toAsset({
+  image: segmented_data_mean,
+  description: 'Processed_Image_' + assets.year,
+  assetId: assets.folder + 'Processed_Imagery/' + assets.year,
+  region: roi,
+  scale: assets.sensor_scale,
+  crs: assets.epsg,
+  maxPixels: 1e13
+});
+
+// (2) (optional) export Image to Google Drive
+// Export.image.toDrive({
+//   image: segmented_data_mean,
+//   description: 'Processed_Image_' + assets.year,
+//   folder: 'Processed_Imagery',  // Name of the folder in your Google Drive
+//   fileNamePrefix: 'Processed_Image_' + assets.year,
+//   region: geometry,
+//   scale: assets.sensor_scale,
+//   crs: assets.epsg,
+//   maxPixels: 1e13
+// });
