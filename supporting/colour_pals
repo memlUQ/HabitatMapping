@@ -1,0 +1,58 @@
+var percentCover = [
+    "#D9F0A3", // Class 1: 1-10%
+    "#ADDD8E", // Class 2: 11-20%
+    "#78C679", // Class 3: 21-30%
+    "#41AB5D", // Class 4: 31-40%
+    "#238443", // Class 5: 41-50%
+    "#005A32",  // Class 6: >=51%
+    "#FFFFCC" // Class 7: 0%
+   ]
+   
+var percentList = [
+    "Class 1: 1-10%",
+    "Class 2: 11-20%",
+    "Class 3: 21-30%",
+    "Class 4: 31-40%",
+    "Class 5: 41-50%",
+    "Class 6: >=51%",
+    "Class 7: 0%"
+   ]
+  
+var speciesCover = [
+    "#006937", // Oceana Serrulata
+    "#248b45", // Zostera Muelleri
+    "#75c376", // Halodule Uninervis
+    
+    "#2272b5", // Halophila Spinulosa
+    "#9ecae1", // Halophila Ovalis
+    
+    "#c8e4bf", // Syringodium Isoetifolium
+    "#6a51a3", // Mixed Seagrass
+
+    "#000000", // Lyngbya Majuscula
+    "#e7298a", // Macroalgae
+    "#c994c7", // Microalgae
+
+    "#fcf7c1", // Sand
+    "#bdbdbd"  // Mixed Benthos
+  ]
+
+var speciesList = [
+    "Oceana serrulata",
+    "Zostera muelleri",
+    "Halodule uninervis",
+    "Halophila spinulosa",
+    "Halophila ovalis",
+    "Syringodium isoetifolium",
+    "Mixed seagrass",
+    "Lyngbya majuscula",
+    "Macroalgae",
+    "Microalgae",
+    "Sand",
+    "Mixed benthos"
+   ]
+
+exports.percentCover = percentCover;
+exports.percentList = percentList;
+exports.speciesCover = speciesCover;
+exports.speciesList = speciesList;
