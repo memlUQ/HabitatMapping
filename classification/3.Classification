@@ -1,0 +1,224 @@
+//////////////////// ---------- (A) USER INPUT ---------- ////////////////////
+// (0) year+month for image classification
+var yearMonth = '202407'; // also used for matching with field data files
+
+// (1) define red, green, and blue bands
+var R = 'b6'; // assign RED band
+var G = 'b4'; // assign GREEN band
+var B = 'b2'; // assign BLUE band
+
+// (2) define cover type and colour palettes
+var coverType = 'species'; // 'species' for species cover OR 'percov' for percent cover
+var benthicClass = [1,2,3,4,5,6,7,8,9,10,11,12];
+var classChoice = (coverType === 'species') ? 'Class_num':'Per_Cov'; // mapping class choice
+
+var colpals = require('users/meml/EasternBanks:colour_pals');
+var palMax = (coverType === 'species') ? 12:7; // maximum number of benthic classes
+var palChoice = (coverType === 'species') ? colpals.speciesCover:colpals.percentCover; // palette choice
+var palList = (coverType === 'species') ? colpals.speciesList:colpals.percentList;
+
+// (3) site name
+var siteName = 'Eastern Banks';
+
+// (4) setup asset directories and import assets
+var roiGeometry = "Eastern_Banks_Shpfl"; // ASSET for region of interest [SHAPEFILE]
+var assetFolder = "projects/ee-meml/assets/EasternBanks/TimeSeries/"
+
+var  assets = {
+  folder: assetFolder,
+  roi_clip: assetFolder+roiGeometry, // geometry for mapping region of interest
+  raw_image: assetFolder+"Raw_Imagery/", // import unprocessed satellite imagery
+  year: yearMonth,
+  sensor_scale: 3, //change based on sensor resolution (e.g., Planet imagery pixel size = 3 m)
+  visPamCC: {bands: [R,G,B], min:0, max:3000, gamma: 1.5}, // adjust based on imgery input
+  epsg: "EPSG:4326",
+  processed_image: assetFolder+"Processed_Imagery/", // import processed satellite imagery - outputs from script "1.Image_Processing"
+  benthic_train_library: assetFolder+"CalVal/cal_pts_", // import calibration dataset - output from script "2.Points_Processing"
+  validation_library: assetFolder+"CalVal/val_pts_", // import validation dataset - output from script "2.Points_Processing"
+  class_field: classChoice, // use column that contains the benthic type information
+  benthic_classes: benthicClass, // may vary depending on amount of classes and what each represents
+  all_bands: [R,G,B, 
+            'mean', 'median', 'stdDev',
+            'rb', 'gb', 'rg',
+            'depth', 'waves',
+            'depth_maxent', 'depth_stdDev', 'red_stdDev',
+            B+'_savg', G+'_savg',
+            'pc1', 'pc2', 'pc3'
+            ], // bands to be attributed to each point
+  benthic_palette: {
+   palette: palChoice,
+   min: 1, max:palMax}
+};
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////// ---------- (B) BASIC DISPLAY ---------- //////////////////
+// (1) define region of interest
+var extent = ee.FeatureCollection(assets.roi_clip);
+var roi = extent.geometry();
+
+// (2) create extent mask as raster
+var mask = extent.map(function(feature){
+  return feature.set('n', 1);
+}).reduceToImage({
+    properties: ['n'],
+    reducer: ee.Reducer.first()
+});
+
+Map.centerObject(roi, 12);
+//Map.addLayer(roi, {}, siteName, false);
+
+// (3) import image and create bands
+var EBimage = ee.Image(assets.raw_image + assets.year).reproject(assets.epsg, null, assets.sensor_scale);
+Map.addLayer(EBimage.clip(roi), assets.visPamCC, 'Eastern Banks ' + assets.year);
+
+// (4) load processed image from "1.Image_Processing"
+var PI = ee.Image(assets.processed_image + assets.year).reproject(assets.epsg, null, assets.sensor_scale).clip(roi);  // PI: Processed Image
+var depth_max = 300; // maximum depth in cm
+var PI_clip = PI.updateMask(PI.select('depth').lte(depth_max));
+//Map.addLayer(PI.randomVisualizer(), {}, "Processed Segmented Image: "+assets.year, false);
+//print(PI.bandNames());
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////// ---------- (C) IMAGE CLASSIFICATION ---------- //////////////
+// (1) input and clean field data 
+var input_bands = assets.all_bands;
+var training_data = ee.FeatureCollection(assets.benthic_train_library + coverType + '_' + assets.year);
+training_data = training_data.filter(ee.Filter.notNull(input_bands));
+//print('Band Names in training_data:', training_data.first().toDictionary().keys());
+
+// (2) train classifier (Random Forest)
+var classifier = ee.Classifier.smileRandomForest({
+  numberOfTrees: 500,
+  minLeafPopulation: 2,
+  variablesPerSplit: null,
+  seed: 50
+}).train(training_data, assets.class_field, input_bands);
+
+// (3) run classifier on the processed image
+var classification = PI_clip.classify(classifier).toUint8().reproject(assets.epsg, null, 3);
+Map.addLayer(classification, assets.benthic_palette, "Classification: " + assets.year, false);
+
+// (4) create a legend
+// set legend box position
+var legend = ui.Panel({
+  style: {
+    position: 'bottom-left',
+    padding: '8px 15px'
+  }
+});
+ 
+// create legend title
+var legendTitle = ui.Label({
+  value: 'Cover Class',
+  style: {
+    fontWeight: 'bold',
+    fontSize: '18px',
+    margin: '0 0 4px 0',
+    padding: '0'
+    }
+});
+legend.add(legendTitle);
+ 
+// create and style 1 row of the legend
+var makeRow = function(colour, name) {
+      // create the label that is actually the coloured box
+      var colorBox = ui.Label({
+        style: {
+          backgroundColor: colour,
+          // use padding to give the box height and width
+          padding: '8px',
+          margin: '0 0 4px 0'
+        }
+      });
+      // create the label filled with the description text
+      var description = ui.Label({
+        value: name,
+        style: {margin: '0 0 4px 6px'}
+      });
+      // return the panel
+      return ui.Panel({
+        widgets: [colorBox, description],
+        layout: ui.Panel.Layout.Flow('horizontal')
+      });
+};
+ 
+// add colour and names
+for (var i = 0; i < palMax; i++) {
+  legend.add(makeRow(palChoice[i], palList[i]));
+  }  
+ 
+// add legend to map
+Map.add(legend);
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+///////////// ---------- (D) EXPORT CLASSIFIED IMAGE ---------- /////////////
+// (1) export classified image as asset
+Export.image.toAsset({
+  image: classification,
+  description: 'Class_' + coverType + '_' + assets.year,
+  assetId: assets.folder + 'Classif/Class_' + coverType + '_' + assets.year,
+  region: roi,
+  scale: assets.sensor_scale,
+  crs: assets.epsg,
+  maxPixels: 1e13
+});
+
+// (2) export classified image to Google Drive
+Export.image.toDrive({
+    image: classification,
+    description: 'Classification_' + coverType + '_' + assets.year,
+    folder: 'Eastern_Banks_Classification', 
+    fileNamePrefix: 'Class_' + coverType + '_' + assets.year,
+    scale: assets.sensor_scale,
+    crs: assets.epsg,
+    maxPixels: 1e13,
+});
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////// ---------- (E) ACCURACY ASSESSMENT ---------- ////////////////
+// (1) import reference data for accuracy assessment
+var validation_data = ee.FeatureCollection(assets.validation_library + coverType + '_' + assets.year);
+
+// (2) create confusion matrix
+var confusionMatrix = ee.ConfusionMatrix(validation_data.classify(classifier)
+    .errorMatrix({
+      actual: assets.class_field, 
+      predicted: 'classification'
+    }));
+
+// (3) print accuracies 
+print("Confusion matrix:", confusionMatrix);
+print("Overall Accuracy:", confusionMatrix.accuracy());
+print("Producers Accuracy:", confusionMatrix.producersAccuracy());
+print("Consumers Accuracy:", confusionMatrix.consumersAccuracy());
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////////// ---------- (F) EXPORT ACCURACIES ---------- ////////////////
+// (1) create feature to store accuracies
+var fc = ee.FeatureCollection([
+  ee.Feature(null, {
+    'accuracy': confusionMatrix.accuracy(),
+    'producers': confusionMatrix.producersAccuracy(),
+    'consumers': confusionMatrix.consumersAccuracy(),
+    'matrix': confusionMatrix.array()
+  })
+]);
+
+// (2) export accuracies to Google Drive
+Export.table.toDrive({
+  collection: fc,
+  description: 'Accuracy_' + coverType + '_' + assets.year,
+  folder: 'Eastern_Banks_Accuracy', 
+  fileNamePrefix: 'Accuracy_' + coverType + '_' + assets.year,
+  fileFormat: 'CSV' // excel .csv format
+});
