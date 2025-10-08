@@ -46,3 +46,6 @@ This script (`3.Classification`) links the calibration dataset (output from `2.P
 
 > [!NOTE]
 > Paths for input and output folder/files need to be changed to fit the users location and name of field data files.
+
+_Example classified image in GEE display window below._
+<img width="783" height="528" alt="image" src="https://github.com/user-attachments/assets/1d456466-489f-4d6d-b9a7-473e5afeadc6" />
