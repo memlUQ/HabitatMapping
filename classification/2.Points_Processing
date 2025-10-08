@@ -1,0 +1,219 @@
+//////////////////// ---------- (A) USER INPUT ---------- ////////////////////
+// (0) year+month for image classification
+var yearMonth = '202407'; // also used for matching with field data files
+
+// (1) define red, green, and blue bands
+var R = 'b6'; // assign RED band
+var G = 'b4'; // assign GREEN band
+var B = 'b2'; // assign BLUE band
+
+// (2) define cover type and number of mapping classes
+var coverType = 'species'; // 'species' for species cover OR 'percov' for percent cover
+var benthicClass = [1,2,3,4,5,6,7,8,9,10,11,12]; // number of mapping classes
+var classChoice = (coverType === 'species') ? 'Class_num':'Per_Cov'; // mapping class choice
+// Species cover: [1  Oceana Serrulata
+//                 2  Zostera Muelleri
+//                 3  Halodule Uninervis
+//                 4  Halophila Spinulosa
+//                 5  Halophila Ovalis
+//                 6  Syringodium Isoetifolium
+//                 7  Mixed Seagrass
+//                 8  Lyngbya Majuscula
+//                 9  Macroalgae
+//                 10 Microalgae
+//                 11 Sand
+//                 12 Mixed Benthos]
+// Percent cover: [1  1-10%
+//                 2  11-20%
+//                 3  21-30%
+//                 4  31-40%
+//                 5  41-50%
+//                 6  >=51%
+//                 7  0%]
+
+// (3) site name
+var siteName = 'Eastern Banks';
+
+// (4) setup asset directories and import assets
+var roiGeometry = "Eastern_Banks_Shpfl"; // ASSET for region of interest [SHAPEFILE]
+var assetFolder = "projects/ee-meml/assets/EasternBanks/TimeSeries/"
+
+var  assets = {
+  folder: assetFolder,
+  roi_clip: assetFolder+roiGeometry, // geometry for mapping region of interest
+  raw_image: assetFolder+"Raw_Imagery/", // import unprocessed satellite imagery
+  year: yearMonth,
+  sensor_scale: 3, //change based on sensor resolution (e.g., Planet imagery pixel size = 3 m)
+  visPamCC: {bands: [R,G,B], min:0, max:3000, gamma: 1.5}, // adjust based on imgery input
+  epsg: "EPSG:4326",
+  processed_image: assetFolder+"Processed_Imagery/", // import processed satellite imagery - outputs from script "1.Image_Processing"
+  raw_points: assetFolder+"Raw_Points/", // import raw points
+  class_field: classChoice, // use column that contains the benthic type information
+  benthic_classes: benthicClass, // may vary depending on amount of classes and what each represents
+  all_bands: [R,G,B,
+            'mean', 'median', 'stdDev',
+            'rb', 'gb', 'rg',
+            'depth', 'waves',
+            'depth_maxent', 'depth_stdDev', 'red_stdDev',
+            B+'_savg', G+'_savg',
+            'pc1', 'pc2', 'pc3'
+            ], // bands to be attributed to each point
+};
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////// ---------- (B) LOAD ASSETS ---------- ///////////////////
+// (1) define region of interest
+var extent = ee.FeatureCollection(assets.roi_clip);
+var roi = extent.geometry();
+
+// (2) create extent mask as raster
+var mask = extent.map(function(feature){
+  return feature.set('n', 1);
+}).reduceToImage({
+    properties: ['n'],
+    reducer: ee.Reducer.first()
+});
+
+Map.centerObject(roi, 14);
+Map.addLayer(roi, {}, siteName+"ROI", false);
+
+// (3) import image and create bands
+var rawImage = ee.Image(assets.raw_image + assets.year).reproject(assets.epsg, null, 3).clip(roi);
+print("Raw Image:", rawImage); // print image details
+Map.addLayer(rawImage, assets.visPamCC, siteName+" Image: "+assets.year);
+
+// (4) load processed image from "1.Image_Processing"
+var PI = ee.Image(assets.processed_image + assets.year);
+Map.addLayer(PI.randomVisualizer(), {}, "Processed Segmented Image: "+assets.year, false);
+print("PI Bands", PI.bandNames());
+
+// (5) load the training points
+var training_pts = ee.FeatureCollection(assets.raw_points + assets.year).filterBounds(roi);
+Map.addLayer(training_pts, {}, "Training Points "+assets.year, false);
+var numberoftrainFeatures = training_pts.size();
+print("Number of training Features:", numberoftrainFeatures);
+var classes_in_tpts = training_pts.aggregate_array(assets.class_field).distinct();
+print("Classes in tpts", classes_in_tpts);
+
+// (6) read mapping class information
+var classes = assets.benthic_classes;
+var sample_class_n = function(classn) {
+    var target_features = training_pts.filterMetadata(assets.class_field, 'equals', classn).geometry();
+    var target_pts = ee.FeatureCollection.randomPoints(target_features, samp_seed)
+                      .map(function(f){
+                        return(f.set(assets.class_field, classn));
+                      });
+    
+    return(target_pts);
+  };
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////// ---------- (C) DEFINE CALIBRATION POINTS ---------- ////////////
+// (1) proportion of calibration data
+var percentage = 0.8; // proportion of field data used as calibration
+var numSeedFeatures = ee.Number(numberoftrainFeatures).multiply(percentage).round();
+
+// (2) set a seed (for reproducibility)
+var samp_seed = ee.Number(numSeedFeatures);
+var train_pts_cal = ee.FeatureCollection(classes.map(sample_class_n)).flatten(); // assign points
+
+// (3) print mapping classes in calibration data
+var classes_in_cal = train_pts_cal.aggregate_array(assets.class_field).distinct();
+print("Classes in calibration points:", classes_in_cal);
+var class_counts = train_pts_cal.aggregate_histogram(assets.class_field); // count occurrences of each class label in calibration points
+print("Class counts in calibration points:", class_counts); 
+
+// (4) view calibration points
+Map.addLayer(train_pts_cal.geometry(), {}, "Calibration points", false);
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////// ---------- (D) DEFINE VALIDATION POINTS ---------- /////////////
+// (1) proportion of validation data
+var numValidationFeatures = ee.Number(numberoftrainFeatures).multiply(0.2).round();
+
+// (2) set a seed (for reproducibility)
+var validation_seed = 200;
+var train_pts_val = ee.FeatureCollection(classes.map(sample_class_n)).flatten().randomColumn('random', validation_seed)
+                      .filter(ee.Filter.lt('random', 0.2)); // filter to get 20% of points
+
+// (3) print mapping classes in validation data
+var classes_in_val = train_pts_val.aggregate_array(assets.class_field).distinct();
+print("Classes in validation points:", classes_in_val);
+var class_counts_val = train_pts_val.aggregate_histogram(assets.class_field); // count occurrences of each class label in validation points
+print("Class counts in validation points:", class_counts_val);
+
+// (4) view validation points
+Map.addLayer(train_pts_val.geometry(), {}, "Validation points", false);
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////// ---------- (E) ASSIGN TRAINING DATA ---------- ///////////////
+// (1) sample calibration data from processed image
+var training_data = PI.select(assets.all_bands).sampleRegions({
+    collection: train_pts_cal,
+    properties: [assets.class_field],
+    scale: assets.sensor_scale,
+    geometries: true
+});
+
+// (2) sample validation data from processed image
+var validation_data = PI.select(assets.all_bands).sampleRegions({
+    collection: train_pts_val,
+    properties: [assets.class_field],
+    scale: assets.sensor_scale,
+    geometries: true
+});
+
+// (3) display all training data
+Map.addLayer(training_data, {}, "Training Data", false);
+var numberofcalFeatures = training_data.size();
+print("Number of calibration Features:", numberofcalFeatures);
+var numberofvalFeatures = validation_data.size();
+print("Number of validation Features:", numberofvalFeatures);
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////// ---------- (F) EXPORT DATA ---------- ///////////////////
+// (1) define names for export
+var cal_name = assets.folder+"CalVal/cal_pts_"+coverType+"_"+assets.year;
+var cal_desc = "cal_pts_"+coverType+"_"+assets.year;
+var val_name = assets.folder+"CalVal/val_pts_"+coverType+"_"+assets.year;
+var val_desc = "val_pts_"+coverType+"_"+assets.year;
+
+// (2) export to asset
+Export.table.toAsset({
+  collection: training_data, 
+  description:  cal_desc, 
+  assetId: cal_name
+});
+
+Export.table.toAsset({
+  collection: validation_data, 
+  description:  val_desc, 
+  assetId: val_name
+});
+
+// (3) (optional) export to Google Drive
+// Export.table.toDrive({
+//   collection: training_data,
+//   description: cal_desc,
+//   folder: "CalVal",
+//   fileNamePrefix: "Calibration_data", 
+//   fileFormat: "CSV" 
+// });
+
+// Export.table.toDrive({
+//   collection: validation_data,
+//   description: val_desc,
+//   folder: "CalVal",
+//   fileNamePrefix: "Validation_data", 
+//   fileFormat: "CSV" 
+// });
