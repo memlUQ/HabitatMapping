@@ -68,4 +68,12 @@ _Example classified image in GEE display window._
 <img width="783" height="528" alt="image" src="https://github.com/user-attachments/assets/1d456466-489f-4d6d-b9a7-473e5afeadc6" />
 
 # References
-Cowley, D., Carrasco Rivera, D.E., Smart, J.N., Hammerman, N.M., Golding, K.M., Diederiks, F.F., and Roelfsema, C.M. 2025. Insights in Seagrass Distribution, Persistence, and Resilience from Decades of Satellite Monitoring. _Remote Sensing_, 17(24): 4033. $\text{\url{https://doi.org/10.3390/rs17244033}}$
+Cowley, D., Carrasco Rivera, D.E., Smart, J.N., Hammerman, N.M., Golding, K.M., Diederiks, F.F., and Roelfsema, C.M. 2025. Insights in Seagrass Distribution, Persistence, and Resilience from Decades of Satellite Monitoring. _Remote Sensing_, 17(24):4033. [https://doi.org/10.3390/rs17244033](https://doi.org/10.3390/rs17244033)
+
+Carrasco Rivera, D.E., Diederiks, F.F., Hammerman, N.M., Staples, T., Kovacs, E., Markey, K., and Roelfsema, C.M. 2025. Remote Sensing Reveals Multidecadal Trends in Coral Cover at Heron Reef, Australia. _Remote Sensing_, 17(7):1286. [https://doi.org/10.3390/rs17244033](https://doi.org/10.3390/rs17071286)
+
+Roelfsema, C.M., Kovacs, E.M., and Phinn, S.R. 2015. Field data sets for seagrass biophysical properties for the Eastern Banks, Moreton Bay, Australia, 2004–2014. _Scientific Data_, 2:150040. [https://doi.org/10.1038/sdata.2015.40](https://doi.org/10.1038/sdata.2015.40)
+
+Roelfsema, C.M., Lyons, M., Kovacs, E.M., Maxwell, P., Saunders, M.I., Samper-Villarreal, J., and Phinn, S.R. 2014. Multi-temporal mapping of seagrass cover, species and biomass: A semi-automated object based image analysis approach. _Remote Sensing of Environment_, 150:172-187. [https://doi.org/10.1016/j.rse.2014.05.001](https://doi.org/10.1016/j.rse.2014.05.001)
+
+Lyons, M.B., Roelfsema, C.M., and Phinn, S.R. 2013. Towards understanding temporal and spatial dynamics of seagrass landscapes using time-series remote sensing. _Estuarine, Coastal and Shelf Science_, 120:42-53. [https://doi.org/10.1016/j.ecss.2013.01.015](https://doi.org/10.1016/j.ecss.2013.01.015)
