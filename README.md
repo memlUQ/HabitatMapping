@@ -66,3 +66,6 @@ This script (`3.Classification`) links the calibration dataset (output from `2.P
 
 _Example classified image in GEE display window._
 <img width="783" height="528" alt="image" src="https://github.com/user-attachments/assets/1d456466-489f-4d6d-b9a7-473e5afeadc6" />
+
+# References
+Cowley, D., Carrasco Rivera, D.E., Smart, J.N., Hammerman, N.M., Golding, K.M., Diederiks, F.F., and Roelfsema, C.M. 2025. Insights in Seagrass Distribution, Persistence, and Resilience from Decades of Satellite Monitoring. _Remote Sensing_, 17(24): 4033. $\text{\url{https://doi.org/10.3390/rs17244033}}$
