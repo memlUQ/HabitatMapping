@@ -7,6 +7,12 @@ Google Earth Engine habitat mapping scripts for repeated creation of benthic cov
 
 # Field Data Pre-Processing
 Classified photoquadrat data from [ReefCloud](https://reefcloud.ai/) is reorganised into the desired benthic classes required for creating habitat maps. Two scripts are used for the time series mapping that utilises the three Google Earth Engine scripts. The two scripts are `GEE_Coral.R` and `GEE_Seagrass.R` which are used for habitat mapping in coral reef and seagrass environments, respectively.
+
+Any in situ training data can be used for training and validation (not just derived from ReefCloud), requiring the following fields as a spreadsheet in a `.csv` format:
+| Longitude | Latitude | Class_num | Dom_Ben |
+| ---------- | ---------- | ---------- | ---------- |
+| Longitude in decimal degrees (float) | Latitude in decimal degrees (float) | The **dominant** benthic feature at each field data point (integer [1 - max no. of classes]) | Name for the **dominant** benthic class (string) |
+
 > [!NOTE]
 > Paths for input and output folder/files need to be changed to fit the users location and name of field data files.
 
