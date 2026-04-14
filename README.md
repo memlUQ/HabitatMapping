@@ -15,7 +15,7 @@ The raw satellite image is pre-processed in a GEE script (`1.Image_Processing`).
 > [!IMPORTANT]
 > This script requires:
 > - Multispectral image (**tiff**)
-> - Physical layer raster for depth/slope/waves (**tiff**)
+> - Physical layer raster for depth/slope/waves (**tiff**) [**depth and wave height should be recorded in CENTIMETRES**]
 > - Outline for the region of interest (**shapefile**)
 
 > [!NOTE]
