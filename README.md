@@ -20,8 +20,8 @@ The raw satellite image is pre-processed in a GEE script (`1.Image_Processing`).
 
 > [!WARNING]
 > The input layers above should have the following units:
-> - The multispectral image should use $\color{red}{\text{\textbf{surface reflectance}}}$ **surface reflectance** (atmospherically corrected)
-> - The depth and wave height physical layers should be in **centimetres**, while slope is **dimensionless** and ranges [0, 1] (as a ratio between horizontal and vertical distances)
+> - The multispectral image should use $\color{red}{\text{\textbf{surface reflectance}}}$ (atmospherically corrected)
+> - The depth and wave height physical layers should be in $\color{red}{\text{\textbf{centimetres}}}$, while slope is $\color{red}{\text{\textbf{dimensionless}}}$ and ranges [0, 1] (as a ratio between horizontal and vertical distances)
 
 > [!NOTE]
 > Paths for input and output folder/files need to be changed to fit the users location and name of field data files.
