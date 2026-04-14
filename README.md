@@ -11,12 +11,18 @@ Classified photoquadrat data from [ReefCloud](https://reefcloud.ai/) is reorgani
 > Paths for input and output folder/files need to be changed to fit the users location and name of field data files.
 
 # Image Pre-Processing
-The raw satellite image is pre-processed in a GEE script (`1.Image_Processing`). In this process, statistical bands are calculated including: mean, median, standard deviation, texture measurements from the gray level co-occurrence matrix (GLCM), principal componentanalysis (PCA), and simple non-iterative clustering (SNIC) segmentation. Additionally, physical attribute layers are included from previous research: depth, slope, and waves. These physical layers can be omitted if not required.
+The raw satellite image is pre-processed in a GEE script (`1.Image_Processing`). In this process, statistical bands are calculated including: mean, median, standard deviation, texture measurements from the gray level co-occurrence matrix (GLCM), principal component analysis (PCA), and simple non-iterative clustering (SNIC) segmentation. Additionally, physical attribute layers are included from previous research: depth, slope, and waves. These physical layers can be omitted if not required.
 > [!IMPORTANT]
 > This script requires:
 > - Multispectral image (**tiff**)
-> - Physical layer raster for depth/slope/waves (**tiff**) [NOTE: depth and wave height should be recorded in **centimetres**]
+> - Physical layer raster for depth/slope/waves (**tiff**)
 > - Outline for the region of interest (**shapefile**)
+
+> [!NOTE]
+> The input layers above should have the following units:
+> - The multispectral image should use **surface reflectance** (atmospherically corrected)
+> - The depth and wave height physical layers should be in **centimetres**, while slope is **dimensionless** and ranges [0, 1] (as a ratio between horizontal and vertical distances)
+> - 
 
 > [!NOTE]
 > Paths for input and output folder/files need to be changed to fit the users location and name of field data files.
