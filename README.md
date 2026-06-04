@@ -32,7 +32,7 @@ The raw satellite image is pre-processed in a GEE script (`1.Image_Processing`).
 > [!NOTE]
 > Paths for input and output folder/files need to be changed to fit the users location and name of field data files.
 
-_Example displaying principal components from the image pre-processing script._
+_Example displaying composite image containing the first three principal components from the image pre-processing script._
 <img width="439" height="554" alt="image" src="https://github.com/user-attachments/assets/07684632-8ed6-45ef-9d27-3baba78ad765" />
 
 # Points Processing
