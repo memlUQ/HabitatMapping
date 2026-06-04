@@ -103,4 +103,6 @@ Leiper, I., Phinn, S.R., Roelfsema, C.M., Joyce, K.E., and Dekker, A.D. 2014. Ma
 
 Lyons, M.B., Roelfsema, C.M., and Phinn, S.R. 2013. Towards understanding temporal and spatial dynamics of seagrass landscapes using time-series remote sensing. _Estuarine, Coastal and Shelf Science_, 120:42-53. [https://doi.org/10.1016/j.ecss.2013.01.015](https://doi.org/10.1016/j.ecss.2013.01.015)
 
+Lyons, M., Phinn, S.R., and Roelfsema, C.M. 2011. Integrating Quickbird multispectral satellite and field data: Mapping Bathymetry, Seagrass Cover, Seagrass Species and Change in Moreton Bay, Australia in 2004 and 2007. _Remote Sensing_, 3(1):42-64. [https://doi.org/10.3390/rs3010042](https://doi.org/10.3390/rs3010042) ‍
+
 Roelfsema, C.M., Phinn, S.R., and Dennison, W.C. 2002. Spatial Distribution of Benthic Microalgae on Coral Reefs Determined by Remote Sensing. _Coral Reefs_, 21:264-274. [https://doi.org/10.1007/s00338-002-0242-9](https://doi.org/10.1007/s00338-002-0242-9)
