@@ -83,9 +83,19 @@ Rowell, D. A., Hammerman, N.M., Golding, K.M., Kenyon, T.M., Meziere, Z., Morgan
 
 Carrasco Rivera, D.E., Diederiks, F.F., Hammerman, N.M., Staples, T., Kovacs, E., Markey, K., and Roelfsema, C.M. 2025. Remote Sensing Reveals Multidecadal Trends in Coral Cover at Heron Reef, Australia. _Remote Sensing_, 17(7):1286. [https://doi.org/10.3390/rs17244033](https://doi.org/10.3390/rs17071286)
 
+Smart, J.N., Hammerman, N.M., Golding, K.M., Markey, K., Kovacs E., and Roelfsema C. 2025. Decadal monitoring shows seagrass decline and community shifts following environmental disturbance in Moreton Bay, south-eastern Queensland, Australia. _Marine and Freshwater Research_, 76(10):MF25049. [https://doi.org/10.1071/MF25049](https://doi.org/10.1071/MF25049)
+
+Kovacs, E.M., Roelfsema, C., Udy, J., Baltais, S., Lyons, M., and Phinn, S. 2022. Cloud Processing for Simultaneous Mapping of Seagrass Meadows in Optically Complex and Varied Water. _Remote Sensing_, 14(3):609. [https://doi.org/10.3390/rs14030609](https://doi.org/10.3390/rs14030609)
+
+Kovacs E., Roelfsema, C.M., Lyons, M., and Phinn, S. 2019. Consideration of Seagrass Remote Sensing in Optical Shallow waters, WoldView 3, Landsat 8, ZY3 and Sentinel 2. _Remote Sensing Letters_, 9(7):686-695. [https://doi.org/10.1080/2150704X.2018.1468101](https://doi.org/10.1080/2150704X.2018.1468101)
+
 Roelfsema, C., Kovacs, E., Roos, P., Terzano, D., Lyons, M., and Phinn, S. 2018. Use of a semi-automated object-based analysis to map benthic composition, Heron Reef, Southern Great Barrier Reef. _Remote Sensing Letters_, 9(4):324-333. [https://doi.org/10.1080/2150704X.2017.1420927](https://doi.org/10.1080/2150704X.2017.1420927)
 
+Phinn, S.R., Kovacs, E.M., Roelfsema, C., Canto, R., Collier, C., and McKenzie, L. 2017. Assessing the potential for satellite image monitoring of seagrass thermal dynamics: for inter- and shallow sub-tidal seagrasses in the inshore Great Barrier Reef World Heritage Area, Australia. _Ecological Indicators_, 11(8):803-824. [https://doi.org/10.1080/17538947.2017.1359343](https://doi.org/10.1080/17538947.2017.1359343) ‍
+
 Roelfsema, C.M., Kovacs, E.M., and Phinn, S.R. 2015. Field data sets for seagrass biophysical properties for the Eastern Banks, Moreton Bay, Australia, 2004–2014. _Scientific Data_, 2:150040. [https://doi.org/10.1038/sdata.2015.40](https://doi.org/10.1038/sdata.2015.40)
+
+Lyons, M., Roelfsema, C.M., Kovacs, E., Samper-Villarreal, J., Saunders, M.I., Maxwell, P., and Phinn, S.R. 2015. Rapid Monitoring of Seagrass Biomass Using a Simple Linear Modelling Approach, in the Field and from Space. _Marine Ecology Progress Series_, 530:1-14. [https://doi.org/10.3354/meps11321](https://doi.org/10.3354/meps11321)
 
 Roelfsema, C.M., Lyons, M., Kovacs, E.M., Maxwell, P., Saunders, M.I., Samper-Villarreal, J., and Phinn, S.R. 2014. Multi-temporal mapping of seagrass cover, species and biomass: A semi-automated object based image analysis approach. _Remote Sensing of Environment_, 150:172-187. [https://doi.org/10.1016/j.rse.2014.05.001](https://doi.org/10.1016/j.rse.2014.05.001)
 
