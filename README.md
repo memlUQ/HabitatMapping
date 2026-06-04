@@ -67,13 +67,30 @@ This script (`3.Classification`) links the calibration dataset (output from `2.P
 _Example classified image in GEE display window._
 <img width="783" height="528" alt="image" src="https://github.com/user-attachments/assets/1d456466-489f-4d6d-b9a7-473e5afeadc6" />
 
+# See Also
+[Long-term monitoring of **Heron Reef** in the southern Great Barrier Reef, QLD, Australia](https://marineecosystemsmonitoringlab.com.au/long-term-monitoring-of-heron-reef)
+
+[Long-term monitoring of the **Eastern Banks** in Moreton Bay, QLD, Australia](https://marineecosystemsmonitoringlab.com.au/seagrass-long-term-monitoring)
+
 # References
+Smart, J.N., Golding, K.M., Hammerman, N.M., Cowley, D., Markey, K., Carrasco Rivera, D.E., Passenger, J., and Roelfsema, C.M. 2026. Georeferenced benthic photo quadrats and benthic cover data derived from a time series of transect surveys for the Eastern Banks, Moreton Bay, Australia, 2004-2025. _The University of Queensland_, Data Collection. [https://doi.org/10.48610/9383138](https://doi.org/10.48610/9383138)
+
+Golding, K.M., Smart, J.N., Cowley, D., Carrasco Rivera, D.E., Hammerman, N.M., Markey, K., Kovacs, E., Diederiks, F.F., Passenger, J., and Roelfsema, C.M. 2026. Georeferenced benthic photo quadrats and benthic cover data derived from a time series of transect surveys for Heron Reef flat and slope areas, Great Barrier Reef, 2019-2025. _The University of Queensland_, Data Collection. [https://doi.org/10.48610/7df1430](https://doi.org/10.48610/7df1430)
+
 Cowley, D., Carrasco Rivera, D.E., Smart, J.N., Hammerman, N.M., Golding, K.M., Diederiks, F.F., and Roelfsema, C.M. 2025. Insights in Seagrass Distribution, Persistence, and Resilience from Decades of Satellite Monitoring. _Remote Sensing_, 17(24):4033. [https://doi.org/10.3390/rs17244033](https://doi.org/10.3390/rs17244033)
 
+Rowell, D. A., Hammerman, N.M., Golding, K.M., Kenyon, T.M., Meziere, Z., Morgans, C., Brown, K.T., Diederiks, F.F., Carrasco Rivera, D.E., Eigeland, K., Paewai-Huggins, R., Markey, K., Beger, M., Chong, F., Donno, G., Dutton, A., Victoria Hsiao, W., Kininmonth, S., Lawson, C.A., Middleton, H., Eyal, G., and Roelfsema, C. 2025. Multi-scale observations during the 2024 mass coral bleaching event on Heron Reef, Australia. _Marine Biology_, 173(17). [https://doi.org/10.1007/s00227-025-04759-5](https://doi.org/10.1007/s00227-025-04759-5)
+
 Carrasco Rivera, D.E., Diederiks, F.F., Hammerman, N.M., Staples, T., Kovacs, E., Markey, K., and Roelfsema, C.M. 2025. Remote Sensing Reveals Multidecadal Trends in Coral Cover at Heron Reef, Australia. _Remote Sensing_, 17(7):1286. [https://doi.org/10.3390/rs17244033](https://doi.org/10.3390/rs17071286)
+
+Roelfsema, C., Kovacs, E., Roos, P., Terzano, D., Lyons, M., and Phinn, S. 2018. Use of a semi-automated object-based analysis to map benthic composition, Heron Reef, Southern Great Barrier Reef. _Remote Sensing Letters_, 9(4):324-333. [https://doi.org/10.1080/2150704X.2017.1420927](https://doi.org/10.1080/2150704X.2017.1420927)
 
 Roelfsema, C.M., Kovacs, E.M., and Phinn, S.R. 2015. Field data sets for seagrass biophysical properties for the Eastern Banks, Moreton Bay, Australia, 2004–2014. _Scientific Data_, 2:150040. [https://doi.org/10.1038/sdata.2015.40](https://doi.org/10.1038/sdata.2015.40)
 
 Roelfsema, C.M., Lyons, M., Kovacs, E.M., Maxwell, P., Saunders, M.I., Samper-Villarreal, J., and Phinn, S.R. 2014. Multi-temporal mapping of seagrass cover, species and biomass: A semi-automated object based image analysis approach. _Remote Sensing of Environment_, 150:172-187. [https://doi.org/10.1016/j.rse.2014.05.001](https://doi.org/10.1016/j.rse.2014.05.001)
 
+Leiper, I., Phinn, S.R., Roelfsema, C.M., Joyce, K.E., and Dekker, A.D. 2014. Mapping Coral Reef Benthos, Substrates, and Bathymetry, Using Compact Airborne Spectrographic Imager (CASI) Data data and Spectral Angle Mapper. _Remote Sensing_, 6(7):6423-6445. [https://doi.org/10.3390/rs6076423](https://doi.org/10.3390/rs6076423)
+
 Lyons, M.B., Roelfsema, C.M., and Phinn, S.R. 2013. Towards understanding temporal and spatial dynamics of seagrass landscapes using time-series remote sensing. _Estuarine, Coastal and Shelf Science_, 120:42-53. [https://doi.org/10.1016/j.ecss.2013.01.015](https://doi.org/10.1016/j.ecss.2013.01.015)
+
+Roelfsema, C.M., Phinn, S.R., and Dennison, W.C. 2002. Spatial Distribution of Benthic Microalgae on Coral Reefs Determined by Remote Sensing. _Coral Reefs_, 21:264-274. [https://doi.org/10.1007/s00338-002-0242-9](https://doi.org/10.1007/s00338-002-0242-9)
